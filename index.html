@@ -172,7 +172,7 @@
     }
 
     async function enviarPedidoReal() {
-      if (pedido.length === 0 || !nombreCliente.value) {
+      if (pedido.length === 0 || !nombreCliente.value.trim()) {
         alert("⚠️ Ingrese el nombre del cliente y al menos un producto.");
         return;
       }
@@ -184,7 +184,7 @@
       };
 
       try {
-        const respuesta = await fetch("https://script.google.com/macros/s/TU_ID_DE_SCRIPT/exec", {
+        await fetch("https://script.google.com/macros/s/TU_ID_DE_SCRIPT/exec", {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
