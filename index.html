@@ -3,209 +3,192 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Registro de Pedido</title>
+  <title>Pedidos Tienda</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f8fafc;
-    }
-    .table-header {
-      background-color: #1e1b4b;
-      color: white;
-    }
-    .table-row:hover {
-      background-color: #eef2ff;
-    }
+    body { font-family: 'Inter', sans-serif; background-color: #f4f6f9; }
+    .tabla-header { background-color: #1e1b4b; color: white; }
+    .boton-verde { background-color: #065f46; color: white; }
+    .boton-verde:hover { background-color: #047857; }
+    .boton-rojo { background-color: #b91c1c; color: white; }
+    .boton-rojo:hover { background-color: #dc2626; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-6">
-  <div class="w-full max-w-6xl bg-white p-6 rounded-2xl shadow-lg">
-    <h1 class="text-3xl font-bold text-center mb-6">📋 Registro de Pedido</h1>
+<body class="min-h-screen p-6">
+  <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg p-6">
+    <h1 class="text-2xl font-bold text-center text-indigo-900 mb-6">📦 Sistema de Pedidos - Tienda</h1>
 
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-      <div>
-        <label class="font-semibold text-gray-700">Nombre:</label>
-        <input id="nombreCliente" type="text" class="border border-gray-300 rounded-lg p-2 w-64 focus:ring focus:ring-indigo-200" placeholder="Ingrese su nombre" />
-      </div>
-      <div class="flex gap-3">
-        <input id="buscarProducto" type="text" class="border border-gray-300 rounded-lg p-2" placeholder="Buscar producto..." />
-        <select id="filtroCategoria" class="border border-gray-300 rounded-lg p-2">
-          <option value="">Todas las categorías</option>
-        </select>
-      </div>
+    <div class="flex justify-between items-center mb-4">
+      <input id="buscar" type="text" placeholder="Buscar producto..." class="border rounded-lg px-3 py-2 w-1/2 focus:ring focus:ring-indigo-300">
+      <select id="categoria" class="border rounded-lg px-3 py-2">
+        <option value="">Todas las categorías</option>
+      </select>
     </div>
 
-    <table class="w-full border border-gray-300 rounded-lg overflow-hidden text-sm">
-      <thead class="table-header">
+    <table class="w-full border rounded-lg overflow-hidden">
+      <thead class="tabla-header">
         <tr>
-          <th class="py-2 px-3 text-left">ID</th>
-          <th class="py-2 px-3 text-left">Nombre</th>
-          <th class="py-2 px-3 text-left">Categoría</th>
-          <th class="py-2 px-3 text-center">Stock</th>
-          <th class="py-2 px-3 text-center">Cantidad</th>
-          <th class="py-2 px-3 text-center">Acción</th>
+          <th class="p-2 text-left">ID</th>
+          <th class="p-2 text-left">Nombre</th>
+          <th class="p-2 text-left">Categoría</th>
+          <th class="p-2 text-center">Stock</th>
+          <th class="p-2 text-center">Cantidad</th>
+          <th class="p-2 text-center">Acción</th>
         </tr>
       </thead>
-      <tbody id="tablaProductos" class="bg-white divide-y divide-gray-200"></tbody>
+      <tbody id="tabla-productos" class="divide-y"></tbody>
     </table>
 
-    <div class="mt-10 bg-gray-50 p-6 rounded-2xl shadow-inner">
-      <h2 class="text-xl font-bold mb-4 flex items-center">
-        🧾 Resumen del Pedido
-      </h2>
-      <input id="nombrePedido" type="text" class="border border-gray-300 rounded-lg p-2 mb-4 w-64" placeholder="Nombre del pedido" />
-
-      <table class="w-full border border-gray-300 rounded-lg overflow-hidden text-sm mb-4">
-        <thead class="table-header">
+    <div class="mt-8 p-4 bg-gray-100 rounded-lg">
+      <h2 class="text-xl font-semibold mb-3 text-indigo-900 flex items-center gap-2">🧾 Resumen del Pedido</h2>
+      <input id="usuario" type="text" placeholder="Nombre del usuario..." class="border rounded-lg px-3 py-2 mb-3 w-full focus:ring focus:ring-indigo-300">
+      <table class="w-full border rounded-lg overflow-hidden">
+        <thead class="tabla-header">
           <tr>
-            <th class="py-2 px-3 text-left">Producto</th>
-            <th class="py-2 px-3 text-center">Cantidad</th>
-            <th class="py-2 px-3 text-center">Acción</th>
+            <th class="p-2 text-left">Producto</th>
+            <th class="p-2 text-center">Cantidad</th>
+            <th class="p-2 text-center">Acción</th>
           </tr>
         </thead>
-        <tbody id="tablaPedido" class="bg-white divide-y divide-gray-200"></tbody>
+        <tbody id="resumen-pedido" class="divide-y"></tbody>
       </table>
-
-      <button id="enviarPedido" class="w-full bg-green-700 hover:bg-green-800 text-white font-semibold py-3 rounded-xl transition">
-        Confirmar y Enviar Pedido
-      </button>
+      <button id="btnEnviar" class="mt-4 w-full py-2 rounded-lg boton-verde font-semibold">Confirmar y Enviar Pedido</button>
     </div>
   </div>
 
   <script>
-    const productos = [
-      { id: "00PROMO", nombre: "PROMOCION X KILO TELAS VARIAS", categoria: "PROMOCION", stock: 7 },
-      { id: "02PROM", nombre: "PROMOCION 9000", categoria: "PROMOCION", stock: 25 },
-      { id: "03PROM", nombre: "PROMOCION 5500", categoria: "PROMOCION", stock: 150 },
-      { id: "04PROM", nombre: "PROMOCION 11000", categoria: "PROMOCION", stock: 80 },
-      { id: "2000100600001", nombre: "CAMISETA PRO BLANCO C#24", categoria: "CAMISETA", stock: 0 },
-      { id: "2000100600002", nombre: "CAMISETA PRO NEGRO C#23", categoria: "CAMISETA", stock: 0 },
-      { id: "2000100600003", nombre: "CAMISETA PRO ROJO BRILLANTE C#72", categoria: "CAMISETA", stock: 0 },
-    ];
-
-    const tablaProductos = document.getElementById("tablaProductos");
-    const filtroCategoria = document.getElementById("filtroCategoria");
-    const buscarProducto = document.getElementById("buscarProducto");
-    const tablaPedido = document.getElementById("tablaPedido");
-    const enviarPedido = document.getElementById("enviarPedido");
-    const nombreCliente = document.getElementById("nombreCliente");
-    const nombrePedido = document.getElementById("nombrePedido");
-
+    const API_URL = "https://script.google.com/macros/s/AKfycbxZD0Bfb_1R3nVS5bedAUZX6P5qrI5-jF2u3NiCPsYG31WETPGtPWvKYJtHMtRMiuGMwg/exec";
+    let productos = [];
     let pedido = [];
 
-    function renderCategorias() {
-      const categorias = [...new Set(productos.map(p => p.categoria))];
-      categorias.forEach(c => {
-        const opt = document.createElement("option");
-        opt.value = c;
-        opt.textContent = c;
-        filtroCategoria.appendChild(opt);
+    // === Cargar productos del inventario ===
+    async function cargarProductos() {
+      const res = await fetch(API_URL + "?action=getInventario");
+      const data = await res.json();
+      productos = data;
+      mostrarProductos(data);
+      cargarCategorias(data);
+    }
+
+    function cargarCategorias(data) {
+      const categorias = [...new Set(data.map(p => p.Categoría))];
+      const select = document.getElementById("categoria");
+      categorias.forEach(cat => {
+        const option = document.createElement("option");
+        option.value = cat;
+        option.textContent = cat;
+        select.appendChild(option);
       });
     }
 
-    function renderProductos() {
-      const filtro = filtroCategoria.value.toLowerCase();
-      const busqueda = buscarProducto.value.toLowerCase();
-      tablaProductos.innerHTML = "";
-
-      productos
-        .filter(p => 
-          (filtro === "" || p.categoria.toLowerCase() === filtro) &&
-          (p.nombre.toLowerCase().includes(busqueda) || p.id.toLowerCase().includes(busqueda))
-        )
-        .forEach(p => {
-          const fila = document.createElement("tr");
-          fila.classList.add("table-row");
-          fila.innerHTML = `
-            <td class="py-2 px-3">${p.id}</td>
-            <td class="py-2 px-3">${p.nombre}</td>
-            <td class="py-2 px-3">${p.categoria}</td>
-            <td class="py-2 px-3 text-center">${p.stock}</td>
-            <td class="py-2 px-3 text-center">
-              <input type="number" id="cant-${p.id}" class="border border-gray-300 rounded-lg w-16 text-center" min="0" value="0" />
-            </td>
-            <td class="py-2 px-3 text-center">
-              <button class="bg-indigo-700 hover:bg-indigo-800 text-white py-1 px-3 rounded-lg" onclick="agregarPedido('${p.id}')">Agregar</button>
-            </td>
-          `;
-          tablaProductos.appendChild(fila);
-        });
-    }
-
-    function agregarPedido(id) {
-      const producto = productos.find(p => p.id === id);
-      const cantidad = parseInt(document.getElementById(`cant-${id}`).value);
-
-      if (cantidad > 0) {
-        const existente = pedido.find(item => item.id === id);
-        if (existente) {
-          existente.cantidad += cantidad;
-        } else {
-          pedido.push({ ...producto, cantidad });
-        }
-        renderPedido();
-      } else {
-        alert("⚠️ Ingrese una cantidad válida");
-      }
-    }
-
-    function eliminarPedido(id) {
-      pedido = pedido.filter(p => p.id !== id);
-      renderPedido();
-    }
-
-    function renderPedido() {
-      tablaPedido.innerHTML = "";
-      pedido.forEach(p => {
+    function mostrarProductos(lista) {
+      const tbody = document.getElementById("tabla-productos");
+      tbody.innerHTML = "";
+      lista.forEach(prod => {
         const fila = document.createElement("tr");
         fila.innerHTML = `
-          <td class="py-2 px-3">${p.nombre}</td>
-          <td class="py-2 px-3 text-center">${p.cantidad}</td>
-          <td class="py-2 px-3 text-center">
-            <button class="bg-red-600 hover:bg-red-700 text-white py-1 px-3 rounded-lg" onclick="eliminarPedido('${p.id}')">X</button>
-          </td>
-        `;
-        tablaPedido.appendChild(fila);
+          <td class="p-2">${prod.ID}</td>
+          <td class="p-2">${prod.Nombre}</td>
+          <td class="p-2">${prod.Categoría}</td>
+          <td class="p-2 text-center">${prod.Stock}</td>
+          <td class="p-2 text-center"><input type="number" min="1" class="w-16 border rounded text-center" id="cant-${prod.ID}"></td>
+          <td class="p-2 text-center">
+            <button class="px-3 py-1 rounded bg-indigo-700 text-white hover:bg-indigo-500" onclick="agregarProducto('${prod.ID}')">Agregar</button>
+          </td>`;
+        tbody.appendChild(fila);
       });
     }
 
-    async function enviarPedidoReal() {
-      if (pedido.length === 0 || !nombreCliente.value.trim()) {
-        alert("⚠️ Ingrese el nombre del cliente y al menos un producto.");
+    function agregarProducto(id) {
+      const prod = productos.find(p => p.ID === id);
+      const cantidadInput = document.getElementById(`cant-${id}`);
+      const cantidad = parseInt(cantidadInput.value);
+
+      if (!cantidad || cantidad <= 0) {
+        alert("Ingrese una cantidad válida.");
         return;
       }
 
-      const datos = {
-        nombreCliente: nombreCliente.value,
-        nombrePedido: nombrePedido.value || "Sin nombre",
-        productos: pedido
-      };
-
-      try {
-        await fetch("https://script.google.com/macros/s/TU_ID_DE_SCRIPT/exec", {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(datos)
-        });
-        alert("✅ Pedido enviado correctamente.");
-        pedido = [];
-        renderPedido();
-      } catch (error) {
-        alert("❌ Hubo un error al enviar el pedido.");
-        console.error(error);
+      if (cantidad > prod.Stock) {
+        alert(`No hay suficiente stock. Solo quedan ${prod.Stock} unidades.`);
+        return;
       }
+
+      const existente = pedido.find(p => p.ID === id);
+      if (existente) {
+        if (existente.Cantidad + cantidad > prod.Stock) {
+          alert(`No puedes agregar más de ${prod.Stock} unidades en total.`);
+          return;
+        }
+        existente.Cantidad += cantidad;
+      } else {
+        pedido.push({ ID: prod.ID, Nombre: prod.Nombre, Cantidad: cantidad });
+      }
+
+      cantidadInput.value = "";
+      renderResumen();
     }
 
-    filtroCategoria.addEventListener("change", renderProductos);
-    buscarProducto.addEventListener("input", renderProductos);
-    enviarPedido.addEventListener("click", enviarPedidoReal);
+    function renderResumen() {
+      const tbody = document.getElementById("resumen-pedido");
+      tbody.innerHTML = "";
+      pedido.forEach(p => {
+        const fila = document.createElement("tr");
+        fila.innerHTML = `
+          <td class="p-2">${p.Nombre}</td>
+          <td class="p-2 text-center">${p.Cantidad}</td>
+          <td class="p-2 text-center">
+            <button class="px-3 py-1 rounded boton-rojo" onclick="eliminarProducto('${p.ID}')">X</button>
+          </td>`;
+        tbody.appendChild(fila);
+      });
+    }
 
-    renderCategorias();
-    renderProductos();
+    function eliminarProducto(id) {
+      pedido = pedido.filter(p => p.ID !== id);
+      renderResumen();
+    }
+
+    document.getElementById("btnEnviar").addEventListener("click", async () => {
+      const usuario = document.getElementById("usuario").value.trim();
+      if (pedido.length === 0) return alert("Agrega productos al pedido.");
+      if (!usuario) return alert("Ingresa el nombre del usuario.");
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "registrarPedido", pedido, usuario }),
+          headers: { "Content-Type": "application/json" }
+        });
+
+        const data = await res.json();
+        if (data.status === "success") {
+          alert("✅ Pedido enviado correctamente.");
+          pedido = [];
+          renderResumen();
+          await cargarProductos(); // actualizar stock
+        } else {
+          alert("❌ Error al registrar el pedido.");
+        }
+      } catch (e) {
+        alert("❌ Error de conexión con Google Apps Script.");
+        console.error(e);
+      }
+    });
+
+    // === Filtros ===
+    document.getElementById("buscar").addEventListener("input", e => {
+      const term = e.target.value.toLowerCase();
+      mostrarProductos(productos.filter(p => p.Nombre.toLowerCase().includes(term)));
+    });
+
+    document.getElementById("categoria").addEventListener("change", e => {
+      const cat = e.target.value;
+      mostrarProductos(cat ? productos.filter(p => p.Categoría === cat) : productos);
+    });
+
+    cargarProductos();
   </script>
 </body>
 </html>
-
