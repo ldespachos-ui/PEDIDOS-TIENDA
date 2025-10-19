@@ -3,203 +3,343 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Pedidos - Tienda</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>Registro de Pedidos</title>
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #f4f6f9; }
-    .tabla-header { background-color: #1e1b4b; color: white; }
-    .boton-verde { background-color: #065f46; color: white; }
-    .boton-verde:hover { background-color: #047857; }
-    .boton-rojo { background-color: #b91c1c; color: white; }
-    .boton-rojo:hover { background-color: #dc2626; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #f3f4f6;
+      color: #333;
+      padding: 20px;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #222;
+    }
+    .container {
+        max-width: 1200px;
+        margin: auto;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input, select, button {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #4f46e5;
+      color: white;
+    }
+    tr:hover {
+      background-color: #f1f5f9;
+    }
+    .error-message {
+      text-align: center;
+      color: #b91c1c;
+      font-weight: bold;
+      padding: 20px;
+      background-color: #fee2e2;
+      border: 1px solid #f87171;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    button {
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #4338ca;
+    }
+    button:disabled {
+      background-color: #a5b4fc;
+      cursor: not-allowed;
+    }
+    #pedido-container {
+      margin-top: 40px;
+      background: white;
+      border-radius: 8px;
+      padding: 25px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    #pedido-container h2 {
+      margin-top: 0;
+      color: #4f46e5;
+    }
+    .controls-pedido {
+        margin-bottom: 15px;
+    }
+    .controls-pedido input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    #btnEnviarPedido {
+        width: 100%;
+        padding: 12px;
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 15px;
+        background-color: #16a34a;
+    }
+    #btnEnviarPedido:hover {
+        background-color: #15803d;
+    }
+    .btn-delete {
+      background-color: #ef4444;
+    }
+    .btn-delete:hover {
+      background-color: #dc2626;
+    }
+    #pedido-error {
+        color: #b91c1c;
+        margin-top: 10px;
+        text-align: center;
+        font-weight: bold;
+        height: 20px;
+    }
   </style>
 </head>
-<body class="min-h-screen p-6">
-  <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg p-6">
-    <h1 class="text-2xl font-bold text-center text-indigo-900 mb-6">📦 Sistema de Pedidos - Tienda</h1>
+<body>
 
-    <div class="flex justify-between items-center mb-4">
-      <input id="buscar" type="text" placeholder="Buscar producto..." class="border rounded-lg px-3 py-2 w-1/2 focus:ring focus:ring-indigo-300">
-      <select id="categoria" class="border rounded-lg px-3 py-2">
-        <option value="">Todas las categorías</option>
-      </select>
-    </div>
+<div class="container">
+  <h1>📦 Inventario de Productos</h1>
 
-    <table class="w-full border rounded-lg overflow-hidden">
-      <thead class="tabla-header">
-        <tr>
-          <th class="p-2 text-left">ID</th>
-          <th class="p-2 text-left">Nombre</th>
-          <th class="p-2 text-left">Categoría</th>
-          <th class="p-2 text-center">Stock</th>
-          <th class="p-2 text-center">Cantidad</th>
-          <th class="p-2 text-center">Acción</th>
-        </tr>
-      </thead>
-      <tbody id="tabla-productos" class="divide-y"></tbody>
-    </table>
-
-    <div class="mt-8 p-4 bg-gray-100 rounded-lg">
-      <h2 class="text-xl font-semibold mb-3 text-indigo-900 flex items-center gap-2">🧾 Resumen del Pedido</h2>
-      <input id="usuario" type="text" placeholder="Nombre del usuario..." class="border rounded-lg px-3 py-2 mb-3 w-full focus:ring focus:ring-indigo-300">
-      <table class="w-full border rounded-lg overflow-hidden">
-        <thead class="tabla-header">
-          <tr>
-            <th class="p-2 text-left">Producto</th>
-            <th class="p-2 text-center">Cantidad</th>
-            <th class="p-2 text-center">Acción</th>
-          </tr>
-        </thead>
-        <tbody id="resumen-pedido" class="divide-y"></tbody>
-      </table>
-      <button id="btnEnviar" class="mt-4 w-full py-2 rounded-lg boton-verde font-semibold">Confirmar y Enviar Pedido</button>
-    </div>
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="Buscar por nombre...">
+    <select id="categoryFilter">
+      <option value="">Todas las categorías</option>
+    </select>
   </div>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxZD0Bfb_1R3nVS5bedAUZX6P5qrI5-jF2u3NiCPsYG31WETPGtPWvKYJtHMtRMiuGMwg/exec";
+  <table id="inventoryTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Categoría</th>
+        <th>Stock</th>
+        <th>Cantidad</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="error-container"></div>
+
+  <div id="pedido-container">
+    <h2>🛒 Resumen del Pedido</h2>
+    <div class="controls-pedido">
+      <input type="text" id="nombrePersona" placeholder="Escribe tu nombre (requerido para el registro)">
+    </div>
+    <table id="pedidoTable">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody id="pedidoTbody"></tbody>
+    </table>
+    <button id="btnEnviarPedido" onclick="enviarPedidoCompleto()">Confirmar y Enviar Pedido</button>
+    <div id="pedido-error"></div>
+  </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxZD0Bfb_1R3nVS5bedAUZX6P5qrI5-jF2u3NiCPsYG31WETPGtPWvKYJtHMtRMiuGMwg/exec";
 
     let productos = [];
-    let pedido = [];
+    let pedidoActual = [];
+    const tbody = document.querySelector("#inventoryTable tbody");
+    const errorContainer = document.getElementById("error-container");
 
-    // === Cargar productos ===
-    async function cargarProductos() {
+    async function cargarInventario() {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Cargando inventario...</td></tr>';
       try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
-        productos = data;
+        if (SCRIPT_URL.includes("URL_DE_TU_APPS_SCRIPT_AQUI")) {
+            throw new Error("No has configurado la URL del Apps Script.");
+        }
+        const res = await fetch(SCRIPT_URL);
+        if (!res.ok) throw new Error(`Error en la red: ${res.status}`);
+        productos = await res.json();
+        if (productos.error) throw new Error(`Error del script: ${productos.error}`);
         mostrarProductos(productos);
-        cargarCategorias(productos);
+        llenarCategorias(productos);
+        errorContainer.innerHTML = '';
       } catch (error) {
-        console.error(error);
-        alert("Error al cargar el inventario.");
+        console.error('Error al cargar el inventario:', error);
+        tbody.innerHTML = '';
+        errorContainer.innerHTML = `<div class="error-message"><strong>Error al Cargar los Datos.</strong><br>Verifica que la URL en la variable SCRIPT_URL sea correcta y que tu script esté implementado correctamente. <br><small>Detalle: ${error.message}</small></div>`;
       }
-    }
-
-    function cargarCategorias(lista) {
-      const categorias = [...new Set(lista.map(p => p.categoria))];
-      const select = document.getElementById("categoria");
-      categorias.forEach(cat => {
-        const option = document.createElement("option");
-        option.value = cat;
-        option.textContent = cat;
-        select.appendChild(option);
-      });
     }
 
     function mostrarProductos(lista) {
-      const tbody = document.getElementById("tabla-productos");
       tbody.innerHTML = "";
-      lista.forEach(prod => {
+      if (lista.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No se encontraron productos.</td></tr>';
+        return;
+      }
+
+      lista.forEach(p => {
         const fila = document.createElement("tr");
+        const disabled = p.stock <= 0 ? 'disabled' : '';
+        const enPedido = pedidoActual.find(item => item.id.toString() === p.id.toString());
+        const cantidadEnPedido = enPedido ? enPedido.cantidad : 1;
+
         fila.innerHTML = `
-          <td class="p-2">${prod.id}</td>
-          <td class="p-2">${prod.nombre}</td>
-          <td class="p-2">${prod.categoria}</td>
-          <td class="p-2 text-center">${prod.stock}</td>
-          <td class="p-2 text-center">
-            <input type="number" min="1" class="w-16 border rounded text-center" id="cant-${prod.id}">
-          </td>
-          <td class="p-2 text-center">
-            <button class="px-3 py-1 rounded bg-indigo-700 text-white hover:bg-indigo-500" onclick="agregarProducto('${prod.id}')">Agregar</button>
-          </td>`;
+          <td>${p.id}</td>
+          <td>${p.nombre}</td>
+          <td>${p.categoria || "N/A"}</td>
+          <td>${p.stock}</td>
+          <td><input type="number" min="1" max="${p.stock}" value="${cantidadEnPedido}" id="qty-${p.id}" style="width:70px" ${disabled}></td>
+          <td><button onclick="agregarAlPedido('${p.id}')" ${disabled}>Agregar</button></td>
+        `;
         tbody.appendChild(fila);
       });
     }
 
-    function agregarProducto(id) {
-      const prod = productos.find(p => p.id === id);
-      const input = document.getElementById(`cant-${id}`);
-      const cantidad = parseInt(input.value);
+    function llenarCategorias(lista) {
+      const categorias = [...new Set(lista.map(p => p.categoria).filter(Boolean))];
+      const select = document.getElementById("categoryFilter");
+      select.innerHTML = '<option value="">Todas las categorías</option>';
+      categorias.sort().forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat;
+        opt.textContent = cat;
+        select.appendChild(opt);
+      });
+    }
 
-      if (!cantidad || cantidad <= 0) {
-        alert("Ingrese una cantidad válida.");
+    function filtrar() {
+      const texto = document.getElementById("searchInput").value.toLowerCase();
+      const categoria = document.getElementById("categoryFilter").value;
+      const filtrados = productos.filter(p =>
+        p.nombre.toLowerCase().includes(texto) && (!categoria || p.categoria === categoria)
+      );
+      mostrarProductos(filtrados);
+    }
+
+    document.getElementById("searchInput").addEventListener("input", filtrar);
+    document.getElementById("categoryFilter").addEventListener("change", filtrar);
+
+    function agregarAlPedido(id) {
+      const producto = productos.find(p => p.id.toString() === id.toString());
+      const cantidadInput = document.getElementById(`qty-${id}`);
+      const cantidad = parseInt(cantidadInput.value);
+
+      if (isNaN(cantidad) || cantidad <= 0 || cantidad > producto.stock) {
+        alert("Cantidad inválida. Debe ser entre 1 y " + producto.stock);
+        cantidadInput.value = 1;
         return;
       }
 
-      if (cantidad > prod.stock) {
-        alert(`No hay suficiente stock para ${prod.nombre}. Disponible: ${prod.stock}`);
-        return;
-      }
-
-      const existente = pedido.find(p => p.id === id);
-      if (existente) {
-        if (existente.quantity + cantidad > prod.stock) {
-          alert(`No puedes agregar más de ${prod.stock} unidades en total.`);
-          return;
-        }
-        existente.quantity += cantidad;
+      const itemExistente = pedidoActual.find(item => item.id.toString() === id.toString());
+      if (itemExistente) {
+        itemExistente.cantidad = cantidad;
       } else {
-        pedido.push({ id: prod.id, nombre: prod.nombre, quantity: cantidad });
+        pedidoActual.push({ id: producto.id, nombre: producto.nombre, cantidad: cantidad });
+      }
+      mostrarPedido();
+    }
+
+    function mostrarPedido() {
+      const pedidoTbody = document.getElementById("pedidoTbody");
+      const btnEnviar = document.getElementById("btnEnviarPedido");
+      pedidoTbody.innerHTML = "";
+      if (pedidoActual.length === 0) {
+        pedidoTbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">Tu pedido está vacío.</td></tr>';
+        btnEnviar.disabled = true;
+      } else {
+        pedidoActual.forEach(item => {
+          const fila = document.createElement("tr");
+          fila.innerHTML = `
+            <td>${item.nombre}</td>
+            <td>${item.cantidad}</td>
+            <td><button class="btn-delete" onclick="borrarDelPedido('${item.id}')">Borrar</button></td>`;
+          pedidoTbody.appendChild(fila);
+        });
+        btnEnviar.disabled = false;
+      }
+    }
+
+    function borrarDelPedido(id) {
+      pedidoActual = pedidoActual.filter(item => item.id.toString() !== id.toString());
+      mostrarPedido();
+    }
+
+    async function enviarPedidoCompleto() {
+      const nombrePersona = document.getElementById("nombrePersona").value.trim();
+      const pedidoError = document.getElementById("pedido-error");
+      pedidoError.textContent = "";
+
+      if (!nombrePersona) {
+        pedidoError.textContent = "Por favor, ingresa tu nombre.";
+        return;
+      }
+      if (pedidoActual.length === 0) {
+        pedidoError.textContent = "Tu pedido está vacío.";
+        return;
       }
 
-      input.value = "";
-      renderResumen();
-    }
+      const btnEnviar = document.getElementById("btnEnviarPedido");
+      btnEnviar.disabled = true;
+      btnEnviar.textContent = 'Procesando...';
 
-    function renderResumen() {
-      const tbody = document.getElementById("resumen-pedido");
-      tbody.innerHTML = "";
-      pedido.forEach(p => {
-        const fila = document.createElement("tr");
-        fila.innerHTML = `
-          <td class="p-2">${p.nombre}</td>
-          <td class="p-2 text-center">${p.quantity}</td>
-          <td class="p-2 text-center">
-            <button class="px-3 py-1 rounded boton-rojo" onclick="eliminarProducto('${p.id}')">X</button>
-          </td>`;
-        tbody.appendChild(fila);
-      });
-    }
-
-    function eliminarProducto(id) {
-      pedido = pedido.filter(p => p.id !== id);
-      renderResumen();
-    }
-
-    document.getElementById("btnEnviar").addEventListener("click", async () => {
-      const nombrePersona = document.getElementById("usuario").value.trim();
-      if (pedido.length === 0) return alert("Agrega productos al pedido.");
-      if (!nombrePersona) return alert("Ingresa el nombre del usuario.");
+      const itemsParaEnviar = pedidoActual.map(({ id, cantidad }) => ({ id, quantity: cantidad }));
 
       try {
-        const res = await fetch(API_URL, {
+        const res = await fetch(SCRIPT_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "submitOrder",
-            items: pedido,
-            nombrePersona
-          })
+          body: JSON.stringify({ action: "submitOrder", nombrePersona, items: itemsParaEnviar })
         });
-
-        const data = await res.json();
-        if (data.status === "OK") {
-          alert("✅ Pedido registrado y stock actualizado.");
-          pedido = [];
-          renderResumen();
-          await cargarProductos();
+        const texto = await res.text();
+        if (texto === "OK") {
+          alert(`¡Pedido a nombre de ${nombrePersona} realizado con éxito!`);
+          pedidoActual = [];
+          document.getElementById("nombrePersona").value = "";
+          mostrarPedido();
+          await cargarInventario();
         } else {
-          alert("❌ Error: " + (data.message || "No se pudo registrar el pedido."));
+            const errorData = JSON.parse(texto);
+            pedidoError.textContent = `Error del servidor: ${errorData.message || 'Error desconocido'}`;
         }
       } catch (error) {
-        console.error(error);
-        alert("Error de conexión con Google Apps Script.");
+        console.error("Error al enviar el pedido:", error);
+        pedidoError.textContent = "Error de conexión. Inténtalo de nuevo.";
+      } finally {
+        if (pedidoActual.length > 0) btnEnviar.disabled = false;
+        btnEnviar.textContent = 'Confirmar y Enviar Pedido';
       }
-    });
+    }
 
-    document.getElementById("buscar").addEventListener("input", e => {
-      const term = e.target.value.toLowerCase();
-      mostrarProductos(productos.filter(p => p.nombre.toLowerCase().includes(term)));
+    document.addEventListener('DOMContentLoaded', () => {
+        cargarInventario();
+        mostrarPedido();
     });
-
-    document.getElementById("categoria").addEventListener("change", e => {
-      const cat = e.target.value;
-      mostrarProductos(cat ? productos.filter(p => p.categoria === cat) : productos);
-    });
-
-    cargarProductos();
-  </script>
+</script>
 </body>
 </html>
