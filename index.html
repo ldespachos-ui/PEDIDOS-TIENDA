@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pedidos Tienda</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Pedidos - Tienda</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -59,20 +59,26 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxZD0Bfb_1R3nVS5bedAUZX6P5qrI5-jF2u3NiCPsYG31WETPGtPWvKYJtHMtRMiuGMwg/exec";
+
     let productos = [];
     let pedido = [];
 
-    // === Cargar productos del inventario ===
+    // === Cargar productos ===
     async function cargarProductos() {
-      const res = await fetch(API_URL + "?action=getInventario");
-      const data = await res.json();
-      productos = data;
-      mostrarProductos(data);
-      cargarCategorias(data);
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        productos = data;
+        mostrarProductos(productos);
+        cargarCategorias(productos);
+      } catch (error) {
+        console.error(error);
+        alert("Error al cargar el inventario.");
+      }
     }
 
-    function cargarCategorias(data) {
-      const categorias = [...new Set(data.map(p => p.Categoría))];
+    function cargarCategorias(lista) {
+      const categorias = [...new Set(lista.map(p => p.categoria))];
       const select = document.getElementById("categoria");
       categorias.forEach(cat => {
         const option = document.createElement("option");
@@ -88,45 +94,47 @@
       lista.forEach(prod => {
         const fila = document.createElement("tr");
         fila.innerHTML = `
-          <td class="p-2">${prod.ID}</td>
-          <td class="p-2">${prod.Nombre}</td>
-          <td class="p-2">${prod.Categoría}</td>
-          <td class="p-2 text-center">${prod.Stock}</td>
-          <td class="p-2 text-center"><input type="number" min="1" class="w-16 border rounded text-center" id="cant-${prod.ID}"></td>
+          <td class="p-2">${prod.id}</td>
+          <td class="p-2">${prod.nombre}</td>
+          <td class="p-2">${prod.categoria}</td>
+          <td class="p-2 text-center">${prod.stock}</td>
           <td class="p-2 text-center">
-            <button class="px-3 py-1 rounded bg-indigo-700 text-white hover:bg-indigo-500" onclick="agregarProducto('${prod.ID}')">Agregar</button>
+            <input type="number" min="1" class="w-16 border rounded text-center" id="cant-${prod.id}">
+          </td>
+          <td class="p-2 text-center">
+            <button class="px-3 py-1 rounded bg-indigo-700 text-white hover:bg-indigo-500" onclick="agregarProducto('${prod.id}')">Agregar</button>
           </td>`;
         tbody.appendChild(fila);
       });
     }
 
     function agregarProducto(id) {
-      const prod = productos.find(p => p.ID === id);
-      const cantidadInput = document.getElementById(`cant-${id}`);
-      const cantidad = parseInt(cantidadInput.value);
+      const prod = productos.find(p => p.id === id);
+      const input = document.getElementById(`cant-${id}`);
+      const cantidad = parseInt(input.value);
 
       if (!cantidad || cantidad <= 0) {
         alert("Ingrese una cantidad válida.");
         return;
       }
 
-      if (cantidad > prod.Stock) {
-        alert(`No hay suficiente stock. Solo quedan ${prod.Stock} unidades.`);
+      if (cantidad > prod.stock) {
+        alert(`No hay suficiente stock para ${prod.nombre}. Disponible: ${prod.stock}`);
         return;
       }
 
-      const existente = pedido.find(p => p.ID === id);
+      const existente = pedido.find(p => p.id === id);
       if (existente) {
-        if (existente.Cantidad + cantidad > prod.Stock) {
-          alert(`No puedes agregar más de ${prod.Stock} unidades en total.`);
+        if (existente.quantity + cantidad > prod.stock) {
+          alert(`No puedes agregar más de ${prod.stock} unidades en total.`);
           return;
         }
-        existente.Cantidad += cantidad;
+        existente.quantity += cantidad;
       } else {
-        pedido.push({ ID: prod.ID, Nombre: prod.Nombre, Cantidad: cantidad });
+        pedido.push({ id: prod.id, nombre: prod.nombre, quantity: cantidad });
       }
 
-      cantidadInput.value = "";
+      input.value = "";
       renderResumen();
     }
 
@@ -136,56 +144,59 @@
       pedido.forEach(p => {
         const fila = document.createElement("tr");
         fila.innerHTML = `
-          <td class="p-2">${p.Nombre}</td>
-          <td class="p-2 text-center">${p.Cantidad}</td>
+          <td class="p-2">${p.nombre}</td>
+          <td class="p-2 text-center">${p.quantity}</td>
           <td class="p-2 text-center">
-            <button class="px-3 py-1 rounded boton-rojo" onclick="eliminarProducto('${p.ID}')">X</button>
+            <button class="px-3 py-1 rounded boton-rojo" onclick="eliminarProducto('${p.id}')">X</button>
           </td>`;
         tbody.appendChild(fila);
       });
     }
 
     function eliminarProducto(id) {
-      pedido = pedido.filter(p => p.ID !== id);
+      pedido = pedido.filter(p => p.id !== id);
       renderResumen();
     }
 
     document.getElementById("btnEnviar").addEventListener("click", async () => {
-      const usuario = document.getElementById("usuario").value.trim();
+      const nombrePersona = document.getElementById("usuario").value.trim();
       if (pedido.length === 0) return alert("Agrega productos al pedido.");
-      if (!usuario) return alert("Ingresa el nombre del usuario.");
+      if (!nombrePersona) return alert("Ingresa el nombre del usuario.");
 
       try {
         const res = await fetch(API_URL, {
           method: "POST",
-          body: JSON.stringify({ action: "registrarPedido", pedido, usuario }),
-          headers: { "Content-Type": "application/json" }
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "submitOrder",
+            items: pedido,
+            nombrePersona
+          })
         });
 
         const data = await res.json();
-        if (data.status === "success") {
-          alert("✅ Pedido enviado correctamente.");
+        if (data.status === "OK") {
+          alert("✅ Pedido registrado y stock actualizado.");
           pedido = [];
           renderResumen();
-          await cargarProductos(); // actualizar stock
+          await cargarProductos();
         } else {
-          alert("❌ Error al registrar el pedido.");
+          alert("❌ Error: " + (data.message || "No se pudo registrar el pedido."));
         }
-      } catch (e) {
-        alert("❌ Error de conexión con Google Apps Script.");
-        console.error(e);
+      } catch (error) {
+        console.error(error);
+        alert("Error de conexión con Google Apps Script.");
       }
     });
 
-    // === Filtros ===
     document.getElementById("buscar").addEventListener("input", e => {
       const term = e.target.value.toLowerCase();
-      mostrarProductos(productos.filter(p => p.Nombre.toLowerCase().includes(term)));
+      mostrarProductos(productos.filter(p => p.nombre.toLowerCase().includes(term)));
     });
 
     document.getElementById("categoria").addEventListener("change", e => {
       const cat = e.target.value;
-      mostrarProductos(cat ? productos.filter(p => p.Categoría === cat) : productos);
+      mostrarProductos(cat ? productos.filter(p => p.categoria === cat) : productos);
     });
 
     cargarProductos();
