@@ -131,6 +131,15 @@
         font-weight: bold;
         height: 20px;
     }
+    #pedidoTable td.peso-col,
+    #pedidoTable th.peso-col,
+    #pedido-peso-total {
+        text-align: right;
+    }
+    #pedido-peso-total {
+        margin-top: 10px;
+        font-weight: bold;
+    }
     @media (max-width: 900px) {
       .main-content {
         flex-direction: column;
@@ -184,11 +193,13 @@
         <tr>
           <th>Producto</th>
           <th>Cantidad</th>
+          <th class="peso-col">Peso (kg)</th>
           <th>Acción</th>
         </tr>
       </thead>
       <tbody id="pedidoTbody"></tbody>
     </table>
+    <div id="pedido-peso-total">Peso total: 0 kg</div>
     <button id="btnEnviarPedido" onclick="enviarPedidoCompleto()">Confirmar y Enviar Pedido</button>
       <div id="pedido-error"></div>
     </div>
@@ -197,6 +208,7 @@
 
 <script>
     const SCRIPT_URL = "https://script.google.com/a/macros/telasreal.com/s/AKfycbwOfIlV2nZwFwmswJH7XXx3t15Php4o3fCNoK0Tc8mM-QsnJUAklwJBu4XQSVdGnwvJSQ/exec";
+    const KG_PER_ROLLO = 25;
 
     let productos = [];
     let pedidoActual = [];
@@ -292,23 +304,36 @@
       mostrarPedido();
     }
 
+    function formatearKg(valor) {
+      return Number.isInteger(valor) ? `${valor} kg` : `${valor.toFixed(2)} kg`;
+    }
+
     function mostrarPedido() {
       const pedidoTbody = document.getElementById("pedidoTbody");
       const btnEnviar = document.getElementById("btnEnviarPedido");
       pedidoTbody.innerHTML = "";
+      const pesoTotalDiv = document.getElementById("pedido-peso-total");
+      let pesoTotal = 0;
+
       if (pedidoActual.length === 0) {
-        pedidoTbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">Tu pedido está vacío.</td></tr>';
+        pedidoTbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Tu pedido está vacío.</td></tr>';
         btnEnviar.disabled = true;
+        pesoTotalDiv.textContent = "Peso total: 0 kg";
       } else {
         pedidoActual.forEach(item => {
+          const pesoItem = item.cantidad * KG_PER_ROLLO;
+          pesoTotal += pesoItem;
+          const pesoItemTexto = formatearKg(pesoItem);
           const fila = document.createElement("tr");
           fila.innerHTML = `
             <td>${item.nombre}</td>
             <td>${item.cantidad}</td>
+            <td class="peso-col">${pesoItemTexto}</td>
             <td><button class="btn-delete" onclick="borrarDelPedido('${item.id}')">Borrar</button></td>`;
           pedidoTbody.appendChild(fila);
         });
         btnEnviar.disabled = false;
+        pesoTotalDiv.textContent = `Peso total: ${formatearKg(pesoTotal)}`;
       }
     }
 
