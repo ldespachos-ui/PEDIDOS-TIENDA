@@ -27,6 +27,15 @@
       gap: 10px;
       margin-bottom: 20px;
     }
+    .main-content {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .inventory-section {
+      flex: 1;
+      min-width: 0;
+    }
     input, select, button {
       padding: 10px 14px;
       border-radius: 8px;
@@ -78,11 +87,14 @@
       cursor: not-allowed;
     }
     #pedido-container {
-      margin-top: 40px;
+      margin-top: 0;
       background: white;
       border-radius: 8px;
       padding: 25px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      flex: 0 0 320px;
+      position: sticky;
+      top: 20px;
     }
     #pedido-container h2 {
       margin-top: 0;
@@ -119,6 +131,16 @@
         font-weight: bold;
         height: 20px;
     }
+    @media (max-width: 900px) {
+      .main-content {
+        flex-direction: column;
+      }
+      #pedido-container {
+        position: static;
+        width: 100%;
+        margin-top: 20px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -133,28 +155,31 @@
     </select>
   </div>
 
-  <table id="inventoryTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Categoría</th>
-        <th>Stock</th>
-        <th>Cantidad</th>
-        <th>Acción</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="main-content">
+    <div class="inventory-section">
+      <table id="inventoryTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Stock</th>
+            <th>Cantidad</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
 
-  <div id="error-container"></div>
-
-  <div id="pedido-container">
-    <h2>🛒 Resumen del Pedido</h2>
-    <div class="controls-pedido">
-      <input type="text" id="nombrePersona" placeholder="Escribe tu nombre (requerido para el registro)">
+      <div id="error-container"></div>
     </div>
-    <table id="pedidoTable">
+
+    <div id="pedido-container">
+      <h2>🛒 Resumen del Pedido</h2>
+      <div class="controls-pedido">
+        <input type="text" id="nombrePersona" placeholder="Escribe tu nombre (requerido para el registro)">
+      </div>
+      <table id="pedidoTable">
       <thead>
         <tr>
           <th>Producto</th>
@@ -165,7 +190,8 @@
       <tbody id="pedidoTbody"></tbody>
     </table>
     <button id="btnEnviarPedido" onclick="enviarPedidoCompleto()">Confirmar y Enviar Pedido</button>
-    <div id="pedido-error"></div>
+      <div id="pedido-error"></div>
+    </div>
   </div>
 </div>
 
