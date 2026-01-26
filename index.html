@@ -109,7 +109,6 @@
     <div id="pedido-container">
       <h2>🛒 Resumen del Pedido</h2>
 
-      <!-- NUEVO: Dropdown de Tiendas (se guardará en columna E de Pedidos) -->
       <div class="controls-pedido">
         <select id="tienda" required>
           <option value="">Selecciona tienda (requerido)</option>
@@ -128,7 +127,6 @@
         </select>
       </div>
 
-      <!-- Texto libre (se guardará en columna F de Pedidos) -->
       <div class="controls-pedido">
         <input type="text" id="nombrePersona" placeholder="OBSERVACIONES" />
       </div>
@@ -294,7 +292,7 @@
 
   async function enviarPedidoCompleto() {
     const tienda = document.getElementById("tienda").value.trim();
-    const notaLibre = document.getElementById("nombrePersona").value.trim(); // columna F
+    const observaciones = document.getElementById("nombrePersona").value.trim();
     const pedidoError = document.getElementById("pedido-error");
     pedidoError.textContent = "";
 
@@ -302,8 +300,8 @@
       pedidoError.textContent = "Por favor, selecciona una tienda.";
       return;
     }
-    if (!notaLibre) {
-      pedidoError.textContent = "Por favor, llena el campo libre (columna F).";
+    if (!observaciones) {
+      pedidoError.textContent = "Por favor, escribe Observaciones.";
       return;
     }
     if (pedidoActual.length === 0) {
@@ -320,18 +318,18 @@
     try {
       const res = await fetch(SCRIPT_URL, {
         method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" }, // Apps Script suele ir bien así
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "submitOrder",
-          tienda,          // <-- columna E
-          notaLibre,       // <-- columna F
+          Usuario: tienda,
+          Observaciones: observaciones,
           items: itemsParaEnviar
         })
       });
 
       const texto = await res.text();
       if (texto === "OK") {
-        alert(`¡Pedido enviado! (Tienda: ${tienda})`);
+        alert(`¡Pedido enviado!`);
         pedidoActual = [];
         document.getElementById("tienda").value = "";
         document.getElementById("nombrePersona").value = "";
