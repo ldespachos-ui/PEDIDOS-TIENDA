@@ -186,10 +186,10 @@
     <div id="pedido-container">
       <h2>🛒 Resumen del Pedido</h2>
 
-      <!-- ✅ NUEVO: Usuario (dropdown) -->
+      <!-- ✅ NUEVO: Usuario (dropdown Tienda 1..12) -->
       <div class="controls-pedido">
-        <select id="usuario" required>
-          <option value="">Selecciona Usuario (Tienda)</option>
+        <select id="Usuario">
+          <option value="">Selecciona tienda (requerido)</option>
           <option value="Tienda 1">Tienda 1</option>
           <option value="Tienda 2">Tienda 2</option>
           <option value="Tienda 3">Tienda 3</option>
@@ -205,9 +205,9 @@
         </select>
       </div>
 
-      <!-- ✅ CAMBIO: input ahora es Observaciones -->
+      <!-- ✅ NUEVO: Observaciones (texto libre) -->
       <div class="controls-pedido">
-        <input type="text" id="observaciones" placeholder="Observaciones (opcional)">
+        <input type="text" id="Observaciones" placeholder="Observaciones (opcional)">
       </div>
 
       <table id="pedidoTable">
@@ -221,7 +221,6 @@
       </thead>
       <tbody id="pedidoTbody"></tbody>
     </table>
-
     <div id="pedido-peso-total">Peso total: 0 kg</div>
     <button id="btnEnviarPedido" onclick="enviarPedidoCompleto()">Confirmar y Enviar Pedido</button>
       <div id="pedido-error"></div>
@@ -230,7 +229,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpywZDsW6UiA_qbRQ-2JZv0c4aLQb9kxL5BCAGKM3z82wVP8pElZNNQ--IGoaL7HM7Lw/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7mTC4BJJYYII93XSRMi3apKZ1H7kl5vG7MvFnPTLN2kiyFBI5CYNBNdFGtsHpiKQkWg/exec";
     const KG_PER_ROLLO = 25;
 
     let productos = [];
@@ -366,14 +365,13 @@
     }
 
     async function enviarPedidoCompleto() {
-      const Usuario = document.getElementById("usuario").value.trim();
-      const Observaciones = document.getElementById("observaciones").value.trim();
-
+      const Usuario = document.getElementById("Usuario").value.trim();
+      const Observaciones = document.getElementById("Observaciones").value.trim();
       const pedidoError = document.getElementById("pedido-error");
       pedidoError.textContent = "";
 
       if (!Usuario) {
-        pedidoError.textContent = "Por favor, selecciona el Usuario (Tienda).";
+        pedidoError.textContent = "Por favor, selecciona una tienda.";
         return;
       }
       if (pedidoActual.length === 0) {
@@ -390,20 +388,23 @@
       try {
         const res = await fetch(SCRIPT_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          // ✅ CLAVE: request SIMPLE (sin preflight) para Apps Script
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({ action: "submitOrder", Usuario, Observaciones, items: itemsParaEnviar })
         });
+
         const texto = await res.text();
         if (texto === "OK") {
           alert(`¡Pedido enviado con éxito!`);
           pedidoActual = [];
-          document.getElementById("usuario").value = "";
-          document.getElementById("observaciones").value = "";
+          document.getElementById("Usuario").value = "";
+          document.getElementById("Observaciones").value = "";
           mostrarPedido();
           await cargarInventario();
         } else {
-            const errorData = JSON.parse(texto);
-            pedidoError.textContent = `Error del servidor: ${errorData.message || 'Error desconocido'}`;
+          let errorData = {};
+          try { errorData = JSON.parse(texto); } catch (_) {}
+          pedidoError.textContent = `Error del servidor: ${errorData.message || texto || 'Error desconocido'}`;
         }
       } catch (error) {
         console.error("Error al enviar el pedido:", error);
