@@ -186,7 +186,6 @@
     <div id="pedido-container">
       <h2>🛒 Resumen del Pedido</h2>
 
-      <!-- ✅ NUEVO: Usuario (dropdown Tienda 1..12) -->
       <div class="controls-pedido">
         <select id="Usuario">
           <option value="">Selecciona tienda (requerido)</option>
@@ -205,24 +204,24 @@
         </select>
       </div>
 
-      <!-- ✅ NUEVO: Observaciones (texto libre) -->
       <div class="controls-pedido">
         <input type="text" id="Observaciones" placeholder="Observaciones (opcional)">
       </div>
 
       <table id="pedidoTable">
-      <thead>
-        <tr>
-          <th>Producto</th>
-          <th>Cantidad</th>
-          <th class="peso-col">Peso (kg)</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody id="pedidoTbody"></tbody>
-    </table>
-    <div id="pedido-peso-total">Peso total: 0 kg</div>
-    <button id="btnEnviarPedido" onclick="enviarPedidoCompleto()">Confirmar y Enviar Pedido</button>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th class="peso-col">Peso (kg)</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody id="pedidoTbody"></tbody>
+      </table>
+
+      <div id="pedido-peso-total">Peso total: 0 kg</div>
+      <button id="btnEnviarPedido" onclick="enviarPedidoCompleto()">Confirmar y Enviar Pedido</button>
       <div id="pedido-error"></div>
     </div>
   </div>
@@ -247,8 +246,11 @@
         if (!res.ok) throw new Error(`Error en la red: ${res.status}`);
         productos = await res.json();
         if (productos.error) throw new Error(`Error del script: ${productos.error}`);
+
+        // ✅ Mostrar SOLO productos con stock > 0
         mostrarProductos(productos);
         llenarCategorias(productos);
+
         errorContainer.innerHTML = '';
       } catch (error) {
         console.error('Error al cargar el inventario:', error);
@@ -257,16 +259,19 @@
       }
     }
 
+    // ✅ IMPORTANTE: acá filtramos para que NO se muestren items con stock 0
     function mostrarProductos(lista) {
       tbody.innerHTML = "";
-      if (lista.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No se encontraron productos.</td></tr>';
+
+      const listaConStock = lista.filter(p => Number(p.stock) > 0);
+
+      if (listaConStock.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No se encontraron productos con stock.</td></tr>';
         return;
       }
 
-      lista.forEach(p => {
+      listaConStock.forEach(p => {
         const fila = document.createElement("tr");
-        const disabled = p.stock <= 0 ? 'disabled' : '';
         const enPedido = pedidoActual.find(item => item.id.toString() === p.id.toString());
         const cantidadEnPedido = enPedido ? enPedido.cantidad : 1;
 
@@ -275,15 +280,18 @@
           <td>${p.nombre}</td>
           <td>${p.categoria || "N/A"}</td>
           <td>${p.stock}</td>
-          <td><input type="number" min="1" max="${p.stock}" value="${cantidadEnPedido}" id="qty-${p.id}" style="width:70px" ${disabled}></td>
-          <td><button onclick="agregarAlPedido('${p.id}')" ${disabled}>Agregar</button></td>
+          <td><input type="number" min="1" max="${p.stock}" value="${cantidadEnPedido}" id="qty-${p.id}" style="width:70px"></td>
+          <td><button onclick="agregarAlPedido('${p.id}')">Agregar</button></td>
         `;
         tbody.appendChild(fila);
       });
     }
 
     function llenarCategorias(lista) {
-      const categorias = [...new Set(lista.map(p => p.categoria).filter(Boolean))];
+      // ✅ También basamos categorías solo en productos con stock > 0
+      const listaConStock = lista.filter(p => Number(p.stock) > 0);
+
+      const categorias = [...new Set(listaConStock.map(p => p.categoria).filter(Boolean))];
       const select = document.getElementById("categoryFilter");
       select.innerHTML = '<option value="">Todas las categorías</option>';
       categorias.sort().forEach(cat => {
@@ -297,9 +305,12 @@
     function filtrar() {
       const texto = document.getElementById("searchInput").value.toLowerCase();
       const categoria = document.getElementById("categoryFilter").value;
-      const filtrados = productos.filter(p =>
-        p.nombre.toLowerCase().includes(texto) && (!categoria || p.categoria === categoria)
-      );
+
+      // ✅ NO mostrar stock 0 en resultados filtrados
+      const filtrados = productos
+        .filter(p => Number(p.stock) > 0)
+        .filter(p => p.nombre.toLowerCase().includes(texto) && (!categoria || p.categoria === categoria));
+
       mostrarProductos(filtrados);
     }
 
@@ -308,6 +319,13 @@
 
     function agregarAlPedido(id) {
       const producto = productos.find(p => p.id.toString() === id.toString());
+
+      // ✅ Seguridad extra: si por alguna razón llega stock 0, no lo agregues
+      if (!producto || Number(producto.stock) <= 0) {
+        alert("Este producto no tiene stock disponible.");
+        return;
+      }
+
       const cantidadInput = document.getElementById(`qty-${id}`);
       const cantidad = parseInt(cantidadInput.value);
 
@@ -388,7 +406,6 @@
       try {
         const res = await fetch(SCRIPT_URL, {
           method: "POST",
-          // ✅ CLAVE: request SIMPLE (sin preflight) para Apps Script
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({ action: "submitOrder", Usuario, Observaciones, items: itemsParaEnviar })
         });
