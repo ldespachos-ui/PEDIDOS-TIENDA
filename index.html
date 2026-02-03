@@ -13,7 +13,6 @@
 
       --bg:      #73B7DD;
       --bg2:     #C7EBFE;
-      --panel:   #ffffff;
       --text:    #050506;
 
       --shadow:  0 10px 24px rgba(0,0,0,0.10);
@@ -43,8 +42,9 @@
       margin-bottom: 18px;
     }
 
+    /* ✅ LOGO MÁS GRANDE */
     .brand-header img{
-      height: 80px;
+      height: 120px;
       width: auto;
       object-fit: contain;
       filter: drop-shadow(0 6px 12px rgba(0,0,0,0.12));
@@ -140,20 +140,9 @@
     button:active{ transform: translateY(1px); }
     button:disabled{ opacity: 0.55; cursor: not-allowed; box-shadow: none; }
 
-    .error-message{
-      text-align: center;
-      color: #b91c1c;
-      font-weight: 800;
-      padding: 16px;
-      background-color: #fee2e2;
-      border: 1px solid #f87171;
-      border-radius: 14px;
-      margin-top: 14px;
-    }
-
-    /* ✅ MÁS ANCHO para que no se corte */
+    /* ✅ panel derecho del tamaño justo (sin scroll horizontal) */
     #pedido-container{
-      flex: 0 0 420px;
+      flex: 0 0 480px;
       position: sticky;
       top: 20px;
       min-width: 0;
@@ -166,21 +155,36 @@
       box-shadow: none;
     }
 
-    /* ✅ evita cortes en la tabla del pedido */
-    .pedido-table-wrap{
-      padding: 0 16px 16px;
-      overflow-x: auto;
+    /* ✅ Tabla del pedido: no se desborda */
+    #pedidoTable{
+      width: 100%;
+      table-layout: fixed;
+      margin: 14px 0 0;
     }
-    #pedidoTable{ min-width: 520px; }
 
-    #pedidoTable td.peso-col,
-    #pedidoTable th.peso-col,
-    #pedido-peso-total{ text-align: right; }
+    #pedidoTable th, #pedidoTable td{
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-wrap: break-word;
+    }
+
+    #pedidoTable th:nth-child(1), #pedidoTable td:nth-child(1){ width: 52%; }
+    #pedidoTable th:nth-child(2), #pedidoTable td:nth-child(2){ width: 16%; text-align:center; }
+    #pedidoTable th:nth-child(3), #pedidoTable td:nth-child(3){ width: 16%; text-align:right; }
+    #pedidoTable th:nth-child(4), #pedidoTable td:nth-child(4){ width: 16%; }
+
+    .btn-delete{
+      background-color: var(--brand-red);
+      padding: 10px 10px;
+      width: 100%;
+      white-space: nowrap;
+    }
 
     #pedido-peso-total{
       padding: 10px 16px 0;
       font-weight: 800;
       color: #0b4f6b;
+      text-align: right;
     }
 
     #btnEnviarPedido{
@@ -193,7 +197,6 @@
       border-radius: 14px;
     }
 
-    .btn-delete{ background-color: var(--brand-red); }
     #pedido-error{
       color: #b91c1c;
       margin: 0 16px 14px;
@@ -202,10 +205,22 @@
       min-height: 20px;
     }
 
+    .error-message{
+      text-align: center;
+      color: #b91c1c;
+      font-weight: 800;
+      padding: 16px;
+      background-color: #fee2e2;
+      border: 1px solid #f87171;
+      border-radius: 14px;
+      margin-top: 14px;
+    }
+
     @media (max-width: 900px){
       .main-content{ flex-direction: column; }
       #pedido-container{ position: static; width: 100%; flex: 1; }
-      #pedidoTable{ min-width: 0; } /* en móvil que no fuerce scroll */
+      #pedidoTable{ table-layout: auto; }
+      #pedidoTable th, #pedidoTable td{ overflow: visible; text-overflow: clip; }
     }
   </style>
 </head>
@@ -213,9 +228,9 @@
 <body>
   <div class="container">
     <div class="brand-header">
-      <!-- ✅ Drive thumbnail (más compatible) -->
+      <!-- ✅ NUEVO LOGO (Drive thumbnail + grande) -->
       <img
-        src="https://drive.google.com/thumbnail?id=1Uv67VOzGR_NQBrc3B4Ldzc9BWfC8_FZQ&sz=w600"
+        src="https://drive.google.com/thumbnail?id=1W3UNB4roz2wVRlaMjLv5aQqU67GP-GQU&sz=w1000"
         alt="Telas Real"
       />
       <h1>📦 Inventario de Productos</h1>
@@ -274,15 +289,14 @@
           <input type="text" id="Observaciones" placeholder="Observaciones (opcional)" />
         </div>
 
-        <!-- ✅ wrapper con scroll horizontal -->
-        <div class="pedido-table-wrap">
+        <div style="padding: 0 16px 16px;">
           <table id="pedidoTable">
             <thead>
               <tr>
                 <th>Producto</th>
-                <th style="width:90px;">Cantidad</th>
-                <th class="peso-col" style="width:110px;">Peso (kg)</th>
-                <th style="width:110px;">Acción</th>
+                <th>Cantidad</th>
+                <th>Peso (kg)</th>
+                <th>Acción</th>
               </tr>
             </thead>
             <tbody id="pedidoTbody"></tbody>
@@ -428,8 +442,8 @@
       const fila = document.createElement("tr");
       fila.innerHTML = `
         <td>${item.nombre}</td>
-        <td>${item.cantidad}</td>
-        <td class="peso-col">${formatearKg(pesoItem)}</td>
+        <td style="text-align:center;">${item.cantidad}</td>
+        <td style="text-align:right;">${formatearKg(pesoItem)}</td>
         <td><button class="btn-delete" onclick="borrarDelPedido('${item.id}')">Borrar</button></td>
       `;
       pedidoTbody.appendChild(fila);
